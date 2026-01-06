@@ -1,6 +1,6 @@
 using Microsoft.Maui.Controls;
 
-namespace firstApp;
+namespace Project2;
 
 public partial class MovieDetailsPage : ContentPage
 {
