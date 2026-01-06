@@ -1,4 +1,4 @@
-﻿namespace firstApp
+﻿namespace Project2
 {
     public partial class AppShell : Shell
     {

@@ -3,9 +3,9 @@ using System.Text.Json;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace firstApp;
+namespace Project2;
 
-public partial class MainPage : ContentPage 
+public partial class MainPage : ContentPage
 {
     string _rawJson = string.Empty;
     List<Movie> _allMovies = new();
@@ -52,7 +52,7 @@ public partial class MainPage : ContentPage
             }
 
             _rawJson = json;
-            // keep JsonLabel for debugging but don't overwrite it with manifest names
+            // keep JsonLabel for debugging
             JsonLabel.Text = string.IsNullOrEmpty(_rawJson) ? "(no JSON loaded)" : _rawJson;
 
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -61,39 +61,21 @@ public partial class MainPage : ContentPage
                 ? new List<Movie>()
                 : JsonSerializer.Deserialize<List<Movie>>(json, options) ?? new List<Movie>();
 
-            // Sanitize values: remove leading question marks or replacement characters from strings
-            foreach (var m in _allMovies)
-            {
-                m.Emoji = StripLeadingQuestionMarks(m.Emoji);
-                m.Title = StripLeadingQuestionMarks(m.Title);
-                m.Director = StripLeadingQuestionMarks(m.Director);
-                if (m.Genre != null && m.Genre.Count > 0)
-                {
-                    for (int i = 0; i < m.Genre.Count; i++)
-                        m.Genre[i] = StripLeadingQuestionMarks(m.Genre[i]);
-                }
-            }
-
             // Debug: show count in title so you can see whether any items were loaded
             this.Title = $"Movies ({_allMovies.Count})";
 
-            // Remove fallback sample item so UI only shows real data
-            // If no movies loaded, leave the list empty and let the UI show nothing
-
             MoviesView.ItemsSource = _allMovies;
+
+            // If no movies loaded, optionally show a debug alert
+            if (_allMovies.Count == 0)
+            {
+                await DisplayAlert("JSON Debug", "No movies loaded!", "OK");
+            }
         }
         catch (Exception ex)
         {
             await DisplayAlert("Error loading JSON", ex.Message, "OK");
         }
-    }
-
-    private static string StripLeadingQuestionMarks(string s)
-    {
-        if (string.IsNullOrEmpty(s))
-            return string.Empty;
-        // Remove leading '?' and replacement char U+FFFD and whitespace
-        return s.TrimStart('?', '\uFFFD').Trim();
     }
 
     private void SearchBar_TextChanged(object sender, TextChangedEventArgs e)
